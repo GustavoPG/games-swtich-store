@@ -1,5 +1,5 @@
-//userController.js
-import { findUserByEmail, createUserModel } from '../models/userModel.js';
+//usuariosController.js
+import { findUserByEmail, createUserModel } from '../models/usuariosModel.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 //import { searchError } from '../utils/utils.js';
@@ -48,13 +48,6 @@ const createToken = async (email) => {
   return token;
 };
 
-// const sendErrorResponse = async (res, errorCode) => {
-//     const errorFound = searchError(errorCode);
-//     if (!errorFound || !errorFound[0] || !errorFound[0].status) {
-//       return res.status(500).json({ error: 'Unknown error' });
-//     }
-//     return res.status(errorFound.status).json({ error: errorFound.message });
-// };
 
 const createNewUser = async (req, res) => {
   try {

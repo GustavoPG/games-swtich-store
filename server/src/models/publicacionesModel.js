@@ -1,4 +1,4 @@
-// userModel.js
+// publicacionesModel.js
 import pool from "../../database/config.js";
 //import bcrypt from "bcryptjs";
 
