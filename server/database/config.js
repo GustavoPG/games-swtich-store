@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 /// Cargar variables de entorno
-const { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE } = process.env;
+const { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE, PORT } = process.env;
 
 const pool = new pg.Pool({
     host: DB_HOST,

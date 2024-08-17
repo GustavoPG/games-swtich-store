@@ -1,23 +1,44 @@
 // categoriasModel.js
 import pool from "../../database/config.js";
-//import bcrypt from "bcryptjs";
 
-const createUserModel = async (email, hashedPassword, rol, lenguage) => {
-  const SQLquery = {
-    text: 'INSERT INTO usuarios (email, password, rol, lenguage) VALUES ($1, $2, $3, $4) RETURNING *',
-    values: [email, hashedPassword, rol, lenguage],
-  };
-  const response = await pool.query(SQLquery);
-  return response.rows[0];
+export const addCategory = async (categoryData) => {
+  const { nombre } = categoryData;
+
+  const query = `
+    INSERT INTO categorias (nombre)
+    VALUES ($1) RETURNING *`;
+  
+  const values = [nombre];
+  
+  const result = await pool.query(query, values);
+  return result.rows[0];
 };
 
-const findUserByEmail = async (email) => {
-  const SQLquery = {
-    text: "SELECT id, email, password, rol, lenguage FROM usuarios WHERE email = $1",
-    values: [email],
-  };
-  const response = await pool.query(SQLquery);
-  return response.rows[0];
-}
+export const getAllCategories = async () => {
+  const result = await pool.query('SELECT * FROM categorias');
+  return result.rows;
+};
 
-export { createUserModel, findUserByEmail };
+export const findCategoryById = async (id_categoria) => {
+  const result = await pool.query('SELECT * FROM categorias WHERE id_categoria = $1', [id_categoria]);
+  return result.rows[0];
+};
+
+export const updateCategory = async (id_categoria, categoryData) => {
+  const { nombre } = categoryData;
+
+  const query = `
+    UPDATE categorias
+    SET nombre = $1
+    WHERE id_categoria = $2 RETURNING *`;
+  
+  const values = [nombre, id_categoria];
+  
+  const result = await pool.query(query, values);
+  return result.rows[0];
+};
+
+export const deleteCategory = async (id_categoria) => {
+  const result = await pool.query('DELETE FROM categorias WHERE id_categoria = $1 RETURNING *', [id_categoria]);
+  return result.rows[0];
+};

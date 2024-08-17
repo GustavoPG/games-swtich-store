@@ -1,20 +1,18 @@
 // usuariosRouter.js
 import { Router } from 'express';
-import { loginUser, createNewUser, getUser  } from '../controllers/carritoController.js';
-import { validparameters, validateParametersUser } from '../middlewares/validateMiddleware.js';
+import { createNewCartItem, getCartItems, getCartItem, updateCartItemBd, deleteCartItemBd } from '../controllers/carritoController.js';
 import { validateToken } from '../middlewares/validateTokenMiddleware.js';
-import { reportTransasction } from '../middlewares/reportMiddleware.js';
+import { validateCartItemData } from '../middlewares/validateMiddleware.js';
+import { reportTransaction } from '../middlewares/reportMiddleware.js';
 
 const router = Router();
 
-router.use(reportTransasction);
+router.use(reportTransaction);
 
-// Rutas
-router.get('/carrito', validateToken, getUser);
-router.post('/carrito',validparameters, loginUser);
-router.get('/carrito/:id', validateToken, getUser);
-router.put('/carrito/:id',validateParametersUser ,createNewUser);
-router.delete('/carrito/:id',validateParametersUser ,createNewUser);
-
+router.post('/carrito', validateCartItemData, createNewCartItem);
+router.get('/carrito', getCartItems);
+router.get('/carrito/:id_usuario', getCartItem);
+router.put('/carrito/:id_usuario', validateCartItemData, updateCartItemBd);
+router.delete('/carrito/:id_usuario', deleteCartItemBd);
 
 export default router;

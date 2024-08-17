@@ -1,8 +1,6 @@
 // reportMiddleware.js
 
-const reportTransasction = (req, res, next) => {
-    console.log(`Consulta recibida: ${req.method} ${req.url}`);
-    next();
-  };
-  
-  export { reportTransasction };
+export const reportTransaction = (req, res, next) => {
+  console.log(`Ruta: ${req.method} ${req.url} - Hora: ${new Date().toISOString()}`);
+  next();
+};

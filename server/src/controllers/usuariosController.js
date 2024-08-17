@@ -1,72 +1,106 @@
 //usuariosController.js
-import { findUserByEmail, createUserModel } from '../models/usuariosModel.js';
+import { createUser, findUserByEmail, findUserById, updateUser, deleteUser } from '../models/usuariosModel.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-//import { searchError } from '../utils/utils.js';
 
-const getUser = async (req, res) => {
+export const createNewUser = async (req, res) => {
   try {
-    const email = req.user.email; 
-    const user = await findUserByEmail(email); 
+    console.log('Datos recibidos en createNewUser:', req.body);
+    const user = await createUser(req.body);
+    res.status(201).json(user);
+  } catch (error) {
+    console.error('Error al crear usuario:', error);  
+    res.status(400).json({ error: 'Error al crear usuario' });
+  }
+};
+
+export const loginUser = async (req, res) => {
+  try {
+    const { email, contraseña } = req.body;
+    const user = await findUserByEmail(email);
+
+    if (!user || !(await bcrypt.compare(contraseña, user.contraseña))) {
+      return res.status(401).json({ error: 'Credenciales incorrectas' });
+    }
+
+    const token = jwt.sign({ id_usuario: user.id_usuario, rol: user.rol }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    res.json({ 
+      token,
+      id_usuario: user.id_usuario,
+      nombre: user.nombre,
+      apellido: user.apellido,
+      email: user.email,
+      avatar: user.avatar,
+      rol: user.rol
+     });
+  } catch (error) {
+    res.status(500).json({ error: 'Error en el login' });
+  }
+};
+
+export const getUser = async (req, res) => {
+  try {
+    const user = await findUserById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener el usuario' });
+  }
+};
+
+export const getProfile = async (req, res) => {
+  try {
+    const { id_usuario } = req.user; 
+    console.log('ID de usuario extraído del token:', id_usuario);
+
+    const user = await findUserById(id_usuario);
+    console.log('Usuario encontrado:', user);
 
     if (!user) {
-      return res.status(404).json({ error: 'Email no Existe' });
+      return res.status(404).json({ error: 'Usuario no encontrado' });
     }
-    res.status(200).json([user]);
+    res.json(user);
   } catch (error) {
-    console.error(`Error fetching user: ${error.message}`);
-    res.status(500).json({ error: 'Error fetching user' });
+    console.error('Error al obtener el perfil del usuario:', error);
+    res.status(500).json({ error: 'Error al obtener el perfil del usuario' });
   }
 };
 
-const loginUser = async (req, res) => {
+export const getUserProfile = async (req, res) => {
   try {
-      const { email, password } = req.body;
-      const findUser = await findUserByEmail(email);
-      if (!findUser) {
-        return res.status(404).json({ error: 'auth_1', message: 'Email no Registrado' });
-      }
-
-      const isPasswordValid = bcrypt.compareSync(password, findUser.password);
-      if (!isPasswordValid) {
-        return res.status(401).json({ error: 'auth_2', message: 'Contraseña incorrecta' });
-      }
-      
-      const token = await createToken(findUser.email);
-      res.status(200).json({
-          message: `Bienvenido, ${findUser.email} has iniciado sesión`,
-          code: 200,
-          token,
-      });
+    const { id_usuario } = req.user;
+    const user = await findUserById(id_usuario);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+    res.json(user);
   } catch (error) {
-    res.status(500).json({ error: 'server_error', message: error.message });
+    res.status(500).json({ error: 'Error al obtener el perfil del usuario' });
   }
 };
 
-const createToken = async (email) => {
-  const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1m' });
-  return token;
-};
-
-
-const createNewUser = async (req, res) => {
+export const updateUserBd = async (req, res) => {
   try {
-    const { email, password, rol, lenguage } = req.body;
-    if (!email || !password || !rol || !lenguage) {
-      return res.status(400).json({ message: "Todos los campos son requeridos" });
+    const user = await updateUser(req.params.id, req.body);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
     }
-
-    const existUser = await findUserByEmail(email);
-    if (existUser) {
-      return res.status(409).json({ message: '¡Email ya existe!' });
-    }
-
-    const hashedPassword = bcrypt.hashSync(password);
-    const newUser = await createUserModel(email, hashedPassword, rol, lenguage);
-    res.status(201).json({ user: newUser });
+    res.json(user);
   } catch (error) {
-    res.status(500).json({ message: error.message }); 
+    res.status(400).json({ error: 'Error al actualizar el usuario' });
   }
 };
 
-export { loginUser, createNewUser, getUser };
+export const deleteUserBd = async (req, res) => {
+  try {
+    const user = await deleteUser(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+    res.json({ message: 'Usuario eliminado correctamente' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al eliminar el usuario' });
+  }
+};
