@@ -58,7 +58,7 @@ export const CartProvider = ({ children }) => {
         });
     };
 
-    // Nueva función para vaciar el carrito
+    // función para vaciar el carrito
     const clearCart = () => {
         setCartItems([]);
     };

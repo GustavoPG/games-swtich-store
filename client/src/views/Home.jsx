@@ -107,9 +107,9 @@ const Home = ({ user, onAddToWishlist }) => {
             let iconType = 'success';
     
             if (response.status === 409) {
-                iconType = 'warning';  // Conflicto, ya está en la lista de deseos
+                iconType = 'warning'; 
             } else if (response.status === 201) {
-                iconType = 'success';  // Añadido con éxito
+                iconType = 'success';  
             }
     
             Swal.fire({
