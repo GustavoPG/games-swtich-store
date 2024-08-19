@@ -10,18 +10,28 @@ export const createNewFavorite = async (req, res) => {
   }
 
   try {
-      const result = await addFavorite({
-          id_usuario,
-          id_publicacion,
-          fecha_valoracion: new Date(),
-      });
+    console.log("Datos recibidos para agregar a favoritos:", { id_usuario, id_publicacion });
+    const result = await addFavorite({
+        id_usuario,
+        id_publicacion,
+        fecha_valoracion: new Date(),
+    });
 
-      return res.status(result.status).json({ message: result.message, favorito: result.favorite });
-  } catch (error) {
-      console.error("Error al agregar a favoritos:", error);
-      return res.status(500).json({ error: 'Error al agregar a favoritos' });
-  }
+    console.log("Resultado de la operación:", result);
+
+    if (result && typeof result.exists !== 'undefined') {
+        return res.status(result.status).json({ message: result.message });
+    } else {
+        throw new Error('Respuesta inesperada del servidor');
+    }
+} catch (error) {
+    console.error("Error al agregar a favoritos:", error.message);
+    return res.status(500).json({ error: 'Error inesperado al agregar a favoritos' });
+}
 };
+
+
+
 
 
 

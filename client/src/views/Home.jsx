@@ -103,37 +103,32 @@ const Home = ({ user, onAddToWishlist }) => {
                 }
             });
     
-            //const message = response.data.message;
-            const message = 'Ingresado a favoritos';
+            const message = response.data.message;
             let iconType = 'success';
     
-            if (response.status === 200) {
-                iconType = 'success';  // Cambiar el icono para el caso en que ya existe
+            if (response.status === 409) {
+                iconType = 'warning';  // Conflicto, ya está en la lista de deseos
             } else if (response.status === 201) {
-                iconType = 'success';
-            } else if (response.status === 409) {
-                iconType = 'warning';  // Usar un icono de advertencia para el caso de conflicto
+                iconType = 'success';  // Añadido con éxito
             }
     
             Swal.fire({
                 icon: iconType,
-                title: 'Ingresado a favoritos',
+                title: message,
                 showConfirmButton: false,
                 timer: 1500
             });
     
-            if (response.status === 201) {
-                onAddToWishlist(juego);  // Solo agregar a la lista si se creó con éxito
-            }
         } catch (error) {
             console.error("Error adding to wishlist:", error.response);
             Swal.fire({
                 icon: 'error',
-                title: 'Error al añadir a la lista de deseos',
-                text: error.response?.data?.error || 'Error inesperado: ' + error.message,
+                title: 'El juego ya está en la lista de deseos',
+                text: '',
             });
         }
     };
+    
     
 
 
