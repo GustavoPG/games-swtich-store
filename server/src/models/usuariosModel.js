@@ -3,7 +3,7 @@ import pool from "../../database/config.js";
 import bcrypt from 'bcryptjs';
 
 export const createUser = async (userData) => {
-  const { nombre, apellido, email, contraseña, avatar, rol = 0 } = userData;
+  const { nombre, apellido, email, contraseña, avatar, rol = 1 } = userData;
   const fecha_registro = new Date();
   const hashedPassword = await bcrypt.hash(contraseña, 10);
 

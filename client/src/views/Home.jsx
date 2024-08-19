@@ -103,7 +103,8 @@ const Home = ({ user, onAddToWishlist }) => {
                 }
             });
     
-            const message = response.data.message;
+            //const message = response.data.message;
+            const message = 'Ingresado a favoritos';
             let iconType = 'success';
     
             if (response.status === 200) {
@@ -116,7 +117,7 @@ const Home = ({ user, onAddToWishlist }) => {
     
             Swal.fire({
                 icon: iconType,
-                title: message,
+                title: 'Ingresado a favoritos',
                 showConfirmButton: false,
                 timer: 1500
             });
