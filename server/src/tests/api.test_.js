@@ -1,5 +1,5 @@
 import request from 'supertest';
-import app from '../../index.js'; // Asegúrate de exportar tu instancia de Express desde el archivo principal
+import app from '../../index.js';
 
 describe('API Tests', () => {
 

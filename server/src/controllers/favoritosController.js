@@ -1,14 +1,29 @@
 // favoritosController.js
-import { addFavorite, getAllFavorites, findFavoriteById, updateFavorite, deleteFavorite } from '../models/favoritosModel.js';
+import { addFavorite, getAllFavorites, findFavoriteById, updateFavorite, deleteFavorite, findFavoriteByUserAndPublication  } from '../models/favoritosModel.js';
 
 export const createNewFavorite = async (req, res) => {
+  const { id_publicacion } = req.body;
+  const id_usuario = req.user.id_usuario;
+
+  if (!id_usuario || !id_publicacion) {
+      return res.status(400).json({ error: 'Datos incompletos' });
+  }
+
   try {
-    const favorite = await addFavorite(req.body);
-    res.status(201).json(favorite);
+      const result = await addFavorite({
+          id_usuario,
+          id_publicacion,
+          fecha_valoracion: new Date(),
+      });
+
+      return res.status(result.status).json({ message: result.message, favorito: result.favorite });
   } catch (error) {
-    res.status(400).json({ error: 'Error al agregar a favoritos' });
+      console.error("Error al agregar a favoritos:", error);
+      return res.status(500).json({ error: 'Error al agregar a favoritos' });
   }
 };
+
+
 
 export const getFavorites = async (req, res) => {
   try {

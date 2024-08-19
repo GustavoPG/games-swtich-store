@@ -1,5 +1,16 @@
 # React + Vite
 
+HITO 3
+Funcionando:
+-Registro
+-Login
+-Agregar Favoritos
+-Cargar Categorías
+-Cargar Productos
+-Filtro de Productos
+-Cargar Perfil de Usuario
+
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
