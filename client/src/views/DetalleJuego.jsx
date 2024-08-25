@@ -46,6 +46,7 @@ const DetalleJuego = ({ user, onAddToWishlist }) => {
                 <Card.Body>
                     <Card.Title>{juego.titulo}</Card.Title>
                     <Card.Text style={{ textAlign: "justify" }}>{juego.descripcion}</Card.Text>
+                    <h5>Categoría: {juego.categoria}</h5>
                     <h4>Precio: ${formatNumber(juego.precio)}</h4>
                     <div className="d-flex justify-content-between">
                         <Button variant="danger" onClick={() => addToCart(juego)} className="me-2">Añadir al Carrito</Button>

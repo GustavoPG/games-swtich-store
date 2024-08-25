@@ -1,3 +1,4 @@
+// ManagerUsers.jsx
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Container } from 'react-bootstrap';
 import Swal from 'sweetalert2';
@@ -5,55 +6,68 @@ import { useNavigate } from 'react-router-dom';
 
 const ManageUsers = () => {
     const [users, setUsers] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        // Cargar la lista de usuarios desde el JSON
-        fetch('/usuarios.json')
+        const token = localStorage.getItem('token');
+
+        fetch('http://localhost:3000/usuarios', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
             .then(response => response.json())
             .then(data => setUsers(data))
             .catch(error => console.error('Error al cargar los usuarios:', error));
     }, []);
-
-    const navigate = useNavigate();
 
     const handleBack = () => {
         navigate(-1); // Navega a la página anterior en el historial
     };
 
     const handleDelete = (userId) => {
-        const updatedUsers = users.filter(user => user.id_usuario !== userId);
-        setUsers(updatedUsers);
-        fetch('/usuarios.json', {
-            method: 'PUT', // Cambia a DELETE cuando se use el backend
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatedUsers)
-        })
-            .then(response => {
-                if (response.ok) {
-                    //alert('Usuario eliminado con éxito');
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Usuario eliminado con éxito',
-                        showConfirmButton: true,
-                        confirmButtonText: 'Aceptar'
-                    });
-                } else {
-                    //alert('Hubo un problema al eliminar el usuario.');
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Hubo un problema al eliminar el usuario.',
-                        text: 'Por favor, inténtalo nuevamente.',
-                        showConfirmButton: true,
-                        confirmButtonText: 'Aceptar'
-                    });
-                }
-            })
-            .catch(error => console.error('Error al actualizar el archivo JSON:', error));
+        const token = localStorage.getItem('token');
+
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esto!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminarlo'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`http://localhost:3000/usuarios/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        setUsers(users.filter(user => user.id_usuario !== userId));
+                        Swal.fire(
+                            'Eliminado',
+                            'El usuario ha sido eliminado.',
+                            'success'
+                        );
+                    } else {
+                        Swal.fire(
+                            'Error',
+                            'Hubo un problema al eliminar el usuario.',
+                            'error'
+                        );
+                    }
+                })
+                .catch(error => console.error('Error al eliminar el usuario:', error));
+            }
+        });
     };
 
     const handleEdit = (userId) => {
-        // Redirigir a la página de edición del usuario
-        window.location.href = `/editar-usuario/${userId}`;
+        navigate(`/editar-usuario/${userId}`);
     };
 
     return (
@@ -82,11 +96,11 @@ const ManageUsers = () => {
                             <td>{user.nombre}</td>
                             <td>{user.apellido}</td>
                             <td>{user.email}</td>
-                            <td>{user.rol === "1" ? "Administrador" : "Usuario"}</td>
+                            <td>{user.rol == "0" ? "Administrador" : "Usuario"}</td>
                             <td>
-                                <Button variant="warning" className="me-2" onClick={() => handleEdit(user.id_usuario)}>
+                                {/* <Button variant="warning" className="me-2" onClick={() => handleEdit(user.id_usuario)}>
                                     Editar
-                                </Button>
+                                </Button> */}
                                 <Button variant="danger" onClick={() => handleDelete(user.id_usuario)}>
                                     Eliminar
                                 </Button>
@@ -100,3 +114,4 @@ const ManageUsers = () => {
 };
 
 export default ManageUsers;
+

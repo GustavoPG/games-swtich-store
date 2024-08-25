@@ -1,3 +1,4 @@
+// EditGame.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Form, Button, Card, Image, Container, Row, Col } from 'react-bootstrap';
@@ -7,24 +8,35 @@ const EditGame = () => {
     const { id_juego } = useParams();
     const navigate = useNavigate();
     const [game, setGame] = useState(null);
+    const [categories, setCategories] = useState([]);
     const [updatedGame, setUpdatedGame] = useState({
         titulo: '',
-        descripción: '',
+        descripcion: '',
         precio: '',
         stock: '',
         url_imagen_juego: '',
-        categoría: []
+        id_categoria: ''
     });
 
     useEffect(() => {
-        fetch(`/juegos.json`)
+        const token = localStorage.getItem('token');
+
+        fetch(`http://localhost:3000/publicaciones/${id_juego}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
             .then(response => response.json())
             .then(data => {
-                const foundGame = data.find(g => g.id_juego === id_juego);
-                setGame(foundGame);
-                setUpdatedGame(foundGame);
+                setGame(data);
+                setUpdatedGame(data);
             })
             .catch(error => console.error("Error al cargar los datos del juego:", error));
+
+        fetch('http://localhost:3000/categorias')
+            .then(response => response.json())
+            .then(data => setCategories(data))
+            .catch(error => console.error("Error al cargar las categorías:", error));
     }, [id_juego]);
 
     const handleChange = (e) => {
@@ -33,33 +45,32 @@ const EditGame = () => {
     };
 
     const handleCategoryChange = (e) => {
-        const { value } = e.target;
-        setUpdatedGame({ ...updatedGame, categoría: value.split(',').map(cat => cat.trim()) });
+        setUpdatedGame({ ...updatedGame, id_categoria: e.target.value });
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetch(`/juegos.json`, {
+        const token = localStorage.getItem('token');
+
+        fetch(`http://localhost:3000/publicaciones/${id_juego}`, {
             method: 'PUT',
             headers: {
+                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(updatedGame)
         })
         .then(response => {
             if (response.ok) {
-                //alert('Juego actualizado exitosamente!');
-                //navigate('/administrar-juegos'); // Redirige a la página de administración de juegos
                 Swal.fire({
                     icon: 'success',
                     title: '¡Juego actualizado exitosamente!',
                     showConfirmButton: true,
                     confirmButtonText: 'Aceptar'
                 }).then(() => {
-                    navigate('/administrar-juegos'); // Redirige a la página de administración de juegos después de que se cierra la alerta
+                    navigate('/administrar-juegos');
                 });
             } else {
-                //alert('Hubo un problema al actualizar el juego.');
                 Swal.fire({
                     icon: 'error',
                     title: 'Hubo un problema al actualizar el juego.',
@@ -98,8 +109,8 @@ const EditGame = () => {
                                     <Form.Label>Descripción:</Form.Label>
                                     <Form.Control
                                         as="textarea"
-                                        name="descripción"
-                                        value={updatedGame.descripción}
+                                        name="descripcion"
+                                        value={updatedGame.descripcion}
                                         onChange={handleChange}
                                         required
                                     />
@@ -135,14 +146,21 @@ const EditGame = () => {
                                     />
                                 </Form.Group>
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Categoría (separadas por comas):</Form.Label>
+                                    <Form.Label>Categoría:</Form.Label>
                                     <Form.Control
-                                        type="text"
-                                        name="categoría"
-                                        value={updatedGame.categoría.join(', ')}
+                                        as="select"
+                                        name="id_categoria"
+                                        value={updatedGame.id_categoria}
                                         onChange={handleCategoryChange}
                                         required
-                                    />
+                                    >
+                                        <option value="">Seleccione una categoría</option>
+                                        {categories.map(category => (
+                                            <option key={category.id_categoria} value={category.id_categoria}>
+                                                {category.nombre}
+                                            </option>
+                                        ))}
+                                    </Form.Control>
                                 </Form.Group>
                                 <Button variant="primary" type="submit">
                                     Guardar Cambios
@@ -168,3 +186,4 @@ const EditGame = () => {
 };
 
 export default EditGame;
+

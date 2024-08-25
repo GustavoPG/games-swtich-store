@@ -37,7 +37,7 @@ const Carrito = () => {
                                     <ListGroup.Item
                                         as="li"
                                         className="d-flex justify-content-between align-items-start"
-                                        key={item.id_juego}
+                                        key={item.id_publicacion}
                                     >
                                         <Image 
                                             src={item.url_imagen_juego} 
@@ -50,7 +50,7 @@ const Carrito = () => {
                                             ${formatNumber(item.precio)} x {item.quantity}
                                         </div>
                                         <div>
-                                            <Button variant="danger" size="sm" onClick={() => removeFromCart(item.id_juego)}>-</Button>
+                                            <Button variant="danger" size="sm" onClick={() => removeFromCart(item.id_publicacion)}>-</Button>
                                             <span className="badge bg-dark mx-3">
                                                 <h6>${formatNumber(item.precio * item.quantity)}</h6>
                                             </span>

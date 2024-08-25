@@ -4,6 +4,7 @@ import { Card, Container, Row, Col, ListGroup, Image, Button } from 'react-boots
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const Profile = () => {
     const [user, setUser] = useState(null);
@@ -20,14 +21,25 @@ const Profile = () => {
             const token = localStorage.getItem('token');
 
             try {
-                const response = await axios.get('http://localhost:3000/usuarios/perfil', {
+                const userResponse = await axios.get('http://localhost:3000/usuarios/perfil', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
 
-                if (response.status === 200) {
-                    setUser(response.data);
+                if (userResponse.status === 200) {
+                    setUser(userResponse.data);
+                    
+                    // Obtener los favoritos del usuario
+                    const favoritesResponse = await axios.get(`http://localhost:3000/favoritos`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (favoritesResponse.status === 200) {
+                        setWishlist(favoritesResponse.data);
+                    }
                 } else {
                     console.error('Error al obtener los datos del usuario');
                 }
@@ -38,6 +50,32 @@ const Profile = () => {
 
         fetchUserData();
     }, []);
+
+    // Función para eliminar un favorito
+    const handleRemoveFromFavorites = async (id_favorito) => {
+        const token = localStorage.getItem('token');
+        try {
+            const response = await axios.delete(`http://localhost:3000/favoritos/${id_favorito}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.status === 200) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Eliminado de la lista de deseos',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                setWishlist(wishlist.filter(item => item.id_favorito !== id_favorito));
+            } else {
+                console.error('Error al eliminar el favorito');
+            }
+        } catch (error) {
+            console.error('Error en la solicitud:', error);
+        }
+    };
 
     if (!user) {
         return <p>Cargando datos del usuario...</p>;
@@ -101,11 +139,12 @@ const Profile = () => {
                                                 </div>
                                                 <div className="d-flex align-items-center">
                                                     <span className="me-3"><strong>Precio:</strong> ${formatNumber(game.precio)}</span>
-                                                    {isInCart(game.id_juego) ? (
-                                                        <Button variant="danger" onClick={() => removeFromCart(game.id_juego)}>Quitar del Carrito</Button>
+                                                    {isInCart(game.id_publicacion) ? (
+                                                        <Button variant="danger" onClick={() => removeFromCart(game.id_publicacion)}>Quitar del Carrito</Button>
                                                     ) : (
-                                                        <Button variant="success" onClick={() => addToCart(game)}>Añadir al Carrito</Button>
+                                                        <Button variant="success" onClick={() => addToCart(game)}>Comprar</Button>
                                                     )}
+                                                    <Button variant="danger" className='ms-3' onClick={() => handleRemoveFromFavorites(game.id_favorito)}>Eliminar</Button>
                                                 </div>
                                             </ListGroup.Item>
                                         ))

@@ -22,9 +22,6 @@ const Login = ({ onLogin }) => {
     
             if (response.status === 200) {
                 console.log("User data:", response.data);
-                //const userData = response.data;
-                //localStorage.setItem('user', JSON.stringify(userData));
-                //onLogin(userData);
                 localStorage.setItem('token', response.data.token);
                 onLogin(response.data);
                 navigate('/');

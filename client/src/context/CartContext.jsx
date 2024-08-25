@@ -17,10 +17,10 @@ export const CartProvider = ({ children }) => {
     const totalPrice = formatNumber(rawTotalPrice);
 
     const addToCart = (item) => {
-        const exists = cartItems.find(cartItem => cartItem.id_juego === item.id_juego);
+        const exists = cartItems.find(cartItem => cartItem.id_publicacion === item.id_publicacion);
         if (exists) {
             const updatedCartItems = cartItems.map(cartItem =>
-                cartItem.id_juego === item.id_juego ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem
+                cartItem.id_publicacion === item.id_publicacion ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem
             );
             setCartItems(updatedCartItems);
             Swal.fire({
@@ -41,14 +41,14 @@ export const CartProvider = ({ children }) => {
     };
 
     const removeFromCart = (itemId) => {
-        const exists = cartItems.find(cartItem => cartItem.id_juego === itemId);
+        const exists = cartItems.find(cartItem => cartItem.id_publicacion === itemId);
         if (exists && exists.quantity > 1) {
             const updatedCartItems = cartItems.map(cartItem =>
-                cartItem.id_juego === itemId ? { ...cartItem, quantity: cartItem.quantity - 1 } : cartItem
+                cartItem.id_publicacion === itemId ? { ...cartItem, quantity: cartItem.quantity - 1 } : cartItem
             );
             setCartItems(updatedCartItems);
         } else {
-            setCartItems(cartItems.filter(item => item.id_juego !== itemId));
+            setCartItems(cartItems.filter(item => item.id_publicacion !== itemId));
         }
         Swal.fire({
             icon: 'success',

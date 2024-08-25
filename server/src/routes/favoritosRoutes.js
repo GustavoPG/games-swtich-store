@@ -10,9 +10,9 @@ const router = Router();
 router.use(reportTransaction);
 
 router.post('/', validateToken, createNewFavorite);
-router.get('/favoritos', getFavorites);
+router.get('/', validateToken, getFavorites);
 router.get('/favoritos/:id', getFavorite);
 router.put('/favoritos/:id', validateFavoriteData, updateFavoriteBd);
-router.delete('/favoritos/:id', deleteFavoriteBd);
+router.delete('/:id', validateToken, deleteFavoriteBd);
 
 export default router;

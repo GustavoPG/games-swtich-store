@@ -1,3 +1,4 @@
+// ManageGames.jsx
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Container, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
@@ -8,8 +9,14 @@ const ManageGames = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Cargar la lista de juegos desde el JSON o API
-        fetch('/juegos.json')
+        // Cargar la lista de juegos desde el backend
+        const token = localStorage.getItem('token');
+
+        fetch('http://localhost:3000/publicaciones', {  // Ajusta la URL según tu backend
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
             .then(response => response.json())
             .then(data => setGames(data))
             .catch(error => console.error('Error al cargar los juegos:', error));
@@ -20,36 +27,47 @@ const ManageGames = () => {
     };
 
     const handleDelete = (gameId) => {
-        const updatedGames = games.filter(game => game.id_juego !== gameId);
-        setGames(updatedGames);
-        fetch('/juegos.json', {
-            method: 'PUT', // Aquise cambiara a DELETE para el backend
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatedGames)
-        })
-            .then(response => {
-                if (response.ok) {
-                    //alert('Juego eliminado con éxito');
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Juego eliminado con éxito',
-                        showConfirmButton: true,
-                        confirmButtonText: 'Aceptar'
-                    });
-                } else {
-                    //alert('Hubo un problema al eliminar el juego.');
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Hubo un problema al eliminar el juego.',
-                        text: 'Por favor, inténtalo nuevamente.',
-                        showConfirmButton: true,
-                        confirmButtonText: 'Aceptar'
-                    });
-                }
-            })
-            .catch(error => console.error('Error al actualizar el archivo JSON:', error));
+        const token = localStorage.getItem('token');
+    
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esto!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminarlo'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`http://localhost:3000/publicaciones/${gameId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Actualizar el estado para eliminar el juego de la lista
+                        setGames(prevGames => prevGames.filter(game => game.id_publicacion !== gameId));
+                        Swal.fire(
+                            'Eliminado',
+                            'El juego ha sido eliminado.',
+                            'success'
+                        );
+                    } else {
+                        Swal.fire(
+                            'Error',
+                            'Hubo un problema al eliminar el juego.',
+                            'error'
+                        );
+                    }
+                })
+                .catch(error => console.error('Error al eliminar el juego:', error));
+            }
+        });
     };
-
+    
     const handleEdit = (gameId) => {
         // Redirigir a la página de edición del juego
         navigate(`/editar-juego/${gameId}`);
@@ -65,13 +83,13 @@ const ManageGames = () => {
             </div>
             <Row>
                 {games.map((game) => (
-                    <Col md={4} key={game.id_juego} className="mb-4">
+                    <Col md={4} key={game.id_publicacion} className="mb-4">  
                         <Card>
                             <Card.Img variant="top" src={game.url_imagen_juego} alt={game.titulo} style={{ height: '200px', objectFit: 'cover' }} />
                             <Card.Body>
                                 <Card.Title>{game.titulo}</Card.Title>
                                 <Card.Text>
-                                    <strong>Descripción:</strong> {game.descripción}
+                                    <strong>Descripción:</strong> {game.descripcion}
                                 </Card.Text>
                                 <Card.Text>
                                     <strong>Precio:</strong> ${game.precio}
@@ -79,10 +97,10 @@ const ManageGames = () => {
                                 <Card.Text>
                                     <strong>Stock:</strong> {game.stock}
                                 </Card.Text>
-                                <Button variant="danger" className="me-2" onClick={() => handleDelete(game.id_juego)}>
+                                <Button variant="danger" className="me-2" onClick={() => handleDelete(game.id_publicacion)}>
                                     X Eliminar
                                 </Button>
-                                <Button variant="primary" onClick={() => handleEdit(game.id_juego)}>
+                                <Button variant="primary" onClick={() => handleEdit(game.id_publicacion)}>
                                     Editar
                                 </Button>
                             </Card.Body>
@@ -93,5 +111,6 @@ const ManageGames = () => {
         </Container>
     );
 };
+
 
 export default ManageGames;

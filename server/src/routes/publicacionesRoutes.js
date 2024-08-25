@@ -9,10 +9,10 @@ const router = Router();
 
 router.use(reportTransaction);
 
-router.post('/', validateToken, validatePublicationData, createNewPublication);
+router.post('/', validateToken, createNewPublication);
 router.get('/', getPublications);
 router.get('/:id', getPublication);
-router.put('/:id', validateToken, validatePublicationData, updatePublicationBd);
+router.put('/:id', validateToken, updatePublicationBd);
 router.delete('/:id', validateToken, deletePublicationBd);
 
 export default router;
